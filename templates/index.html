@@ -1,103 +1,98 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>VietSub AI</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      padding: 20px;
-      background: #080d18;
-      color: #e8f7ff;
-      font-family: Arial, sans-serif;
-    }
-    main {
-      max-width: 600px;
-      margin: 35px auto;
-      padding: 24px;
-      background: #111b2d;
-      border: 1px solid #00d9ff;
-      border-radius: 16px;
-      box-shadow: 0 0 20px #00d9ff30;
-    }
-    h1 { color: #00e5ff; }
-    p { line-height: 1.6; }
-    input, button {
-      width: 100%;
-      margin-top: 16px;
-      padding: 13px;
-      border-radius: 8px;
-    }
-    input {
-      background: #0b1322;
-      color: white;
-      border: 1px solid #34465c;
-    }
-    button {
-      background: #00d9ff;
-      color: #07111c;
-      border: 0;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    #status { color: #9eddec; overflow-wrap: anywhere; }
-  </style>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VietSub AI — Dịch video đa ngôn ngữ</title>
+<style>
+:root{--bg:#030917;--panel:#07162d;--line:#164d91;--cyan:#22d3ff;--blue:#246bff;--pink:#d94cff;--txt:#eaf4ff;--muted:#9bb6d7}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 75% 0%,#12245a 0,transparent 42%),var(--bg);color:var(--txt);font:15px system-ui,Segoe UI,Arial}
+header{height:70px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-bottom:1px solid #164d91;background:#020817dd;position:sticky;top:0;z-index:5}
+.brand{font-size:25px;font-weight:900;letter-spacing:.4px;color:#fff;text-shadow:0 0 16px #557cff}.brand span{color:var(--cyan)}.sub{font-size:12px;color:var(--muted)}
+.wrap{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100vh - 70px)}aside{padding:18px 13px;border-right:1px solid #123c75;background:#030b1a}.nav{padding:13px;border:1px solid transparent;border-radius:12px;margin-bottom:8px;color:#c7dcfa}.nav.active{border-color:#3e71ff;background:linear-gradient(110deg,#173d9a,#121f53);box-shadow:0 0 18px #164bff55}
+main{padding:18px;max-width:1500px;width:100%;margin:auto}.hero{border:1px solid #315dff;border-radius:18px;padding:22px;background:linear-gradient(100deg,#0b1a44,#07152b 55%,#20104a);box-shadow:0 0 30px #1e4dff24;margin-bottom:16px}.hero h1{margin:0 0 8px;font-size:clamp(23px,3vw,34px);background:linear-gradient(90deg,#fff,#53d8ff,#d56bff);background-clip:text;color:transparent}.hero p{margin:0;color:#c4d7f5;max-width:800px}.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}.tag{font-size:12px;border:1px solid #244f9d;padding:7px 10px;border-radius:20px;color:#bfefff;background:#06132c}
+.columns{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(300px,.9fr);gap:14px}.panel{border:1px solid #174d8e;border-radius:15px;background:linear-gradient(145deg,#07172e,#040d1d);padding:16px;box-shadow:inset 0 0 20px #0b2c5b22;margin-bottom:14px}.panel h2{font-size:17px;margin:0 0 13px;color:#b9eaff}.step{color:var(--cyan);margin-right:7px}
+.drop{border:1px dashed #2f7cff;border-radius:12px;padding:26px 14px;text-align:center;background:#081b3b;cursor:pointer;transition:.2s}.drop:hover{border-color:#db62ff;box-shadow:0 0 20px #276bff33}.cloud{font-size:35px;color:var(--cyan)}.drop strong{display:block;margin:6px}.small{font-size:12px;color:var(--muted)}input[type=file]{display:none}.fileline{margin-top:10px;padding:10px;border-radius:9px;background:#06152a;color:#bde8ff;overflow-wrap:anywhere}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}label{display:block;font-size:12px;color:#bdd2ed;margin-bottom:6px}select,input[type=text]{width:100%;padding:11px;border-radius:9px;border:1px solid #25518b;background:#071b38;color:#fff;outline:none}select:focus{border-color:var(--cyan)}
+input[type=range]{width:100%;accent-color:#36bfff}.rangehead{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:#c4d8f1}.quality{border:1px solid #27508d;border-radius:10px;padding:12px;text-align:center;cursor:pointer;background:#071832}.quality.selected{border-color:#47d8ff;box-shadow:0 0 14px #197dff77;background:#0b2c63}.quality input{display:none}
+button{border:0;border-radius:10px;padding:12px 15px;font-weight:800;cursor:pointer;color:white;background:linear-gradient(90deg,#08bde9,#3b65ff,#c744ed)}button:disabled{opacity:.45;cursor:not-allowed}.primary{width:100%;margin-top:14px;font-size:15px}.secondary{background:#0a2043;border:1px solid #2860a6}.preview{background:#01040b;border-radius:11px;overflow:hidden;min-height:210px;display:flex;align-items:center;justify-content:center;color:#7896bd}video{width:100%;max-height:360px;background:#000}.notice{font-size:12px;color:#ffc96b;line-height:1.5;margin-top:10px}.status{padding:12px;border-radius:10px;background:#06152c;border:1px solid #174d8e;margin-top:12px;white-space:pre-wrap;overflow-wrap:anywhere}.albumgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.albumitem{border:1px solid #164780;border-radius:10px;padding:12px;color:#c8dcf7;background:#06142a}.hidden{display:none!important}
+footer{text-align:center;color:#6e8eb8;padding:20px;font-size:12px}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}aside{display:flex;gap:7px;overflow:auto;border-right:0;border-bottom:1px solid #123c75;padding:9px}.nav{white-space:nowrap;margin:0;padding:10px}.columns{grid-template-columns:1fr}main{padding:11px}header{padding:0 13px}.sub{display:none}}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}.hero{padding:16px}.panel{padding:12px}.grid3{gap:5px}.quality{padding:10px 3px;font-size:12px}}
+</style>
 </head>
 <body>
-  <main>
-    <h1>VietSub AI</h1>
-    <p>Công cụ hỗ trợ tải video lên để chuẩn bị xử lý phụ đề và lồng tiếng.</p>
-
-    <form id="uploadForm">
-      <label for="video">Chọn video cần xử lý</label>
-      <input id="video" type="file"
-        accept="video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm,video/x-m4v"
-        required>
-      <button type="submit">TẢI VIDEO LÊN</button>
-    </form>
-
-    <p id="status">Trạng thái: Sẵn sàng.</p>
-  </main>
-
-  <script>
-    const form = document.getElementById('uploadForm');
-    const status = document.getElementById('status');
-
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-
-      const file = document.getElementById('video').files[0];
-      if (!file) {
-        status.textContent = 'Hãy chọn video trước.';
-        return;
-      }
-
-      const data = new FormData();
-      data.append('video', file);
-      status.textContent = 'Đang tải video lên...';
-
-      try {
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: data
-        });
-        const result = await response.json();
-
-        if (!response.ok) {
-          throw new Error(result.error || 'Tải video thất bại.');
-        }
-
-        status.textContent =
-          'Tải lên thành công. Mã tác vụ: ' + result.id +
-          '. Engine dịch video AI chưa được tích hợp.';
-      } catch (error) {
-        status.textContent = 'Lỗi: ' + error.message;
-      }
-    });
-  </script>
-</body>
-  </html>
-        
+<header><div><div class="brand">▶ VietSub <span>AI</span></div><div class="sub">Dịch video · Tạo phụ đề · Lồng tiếng đa ngôn ngữ</div></div><div class="sub">BẢN KHỞI ĐẦU</div></header>
+<div class="wrap">
+<aside><div class="nav active">▣ Tạo Vietsub</div><div class="nav">▤ Album của tôi</div><div class="nav">◷ Lịch sử xử lý</div><div class="nav">⚙ Cài đặt</div></aside>
+<main>
+<section class="hero"><h1>Dịch video — Kết nối mọi ngôn ngữ</h1><p>Tải lên video cần dịch, chọn ngôn ngữ đích, tạo phụ đề và lồng tiếng AI. Hỗ trợ video từ 1 giây đến tối đa 1 tiếng, tùy giới hạn máy chủ và dịch vụ AI.</p><div class="tags"><span class="tag">🌐 Nhiều ngôn ngữ</span><span class="tag">🎙 Giọng đọc AI</span><span class="tag">🔊 Tách âm lượng</span><span class="tag">🎞 720p · 1080p · 4K*</span></div></section>
+<div class="columns">
+<div>
+<section class="panel"><h2><span class="step">1.</span>Tải video cần dịch lên</h2>
+<label class="drop" for="videoFile"><div class="cloud">⇧</div><strong>Kéo video vào đây hoặc bấm để chọn file</strong><div class="small">MP4, MOV, AVI, MKV, WEBM, M4V · Tối đa 1 tiếng</div><div style="margin-top:14px"><span class="tag">Chọn video từ thiết bị</span></div></label><input id="videoFile" type="file" accept="video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm,video/x-m4v">
+<div id="fileInfo" class="fileline hidden"></div><div id="durationInfo" class="small" style="margin-top:8px">Chưa chọn video.</div>
+</section>
+<section class="panel"><h2><span class="step">2.</span>AI tự nhận diện ngôn ngữ gốc · Chọn ngôn ngữ đích</h2>
+<div class="grid2"><div><label>Ngôn ngữ gốc</label><div class="fileline" style="margin-top:0">🌐 AI tự động nhận diện ngôn ngữ trong video</div><div class="small" style="margin-top:6px">Bạn không cần chọn ngôn ngữ gốc.</div></div>
+<div><label>Dịch sang ngôn ngữ</label><select id="targetLang"><option>Tiếng Việt</option><option>Tiếng Anh</option><option>Tiếng Trung</option><option>Tiếng Nhật</option><option>Tiếng Hàn</option><option>Tiếng Pháp</option><option>Tiếng Đức</option><option>Tiếng Tây Ban Nha</option><option>Tiếng Thái</option><option>Tiếng Indonesia</option><option>Tiếng Bồ Đào Nha</option><option>Tiếng Nga</option><option>Tiếng Ả Rập</option></select></div></div>
+<div class="grid2" style="margin-top:12px"><div><label>Giọng đọc AI</label><select id="voice"><option>Nữ — tự nhiên</option><option>Nam — tự nhiên</option><option>Nữ — nhẹ nhàng</option><option>Nam — trầm ấm</option></select></div><div><label>Kiểu xuất phụ đề</label><select id="subtitleMode"><option>Phụ đề + lồng tiếng</option><option>Chỉ phụ đề</option><option>Phụ đề song ngữ</option><option>Chỉ lồng tiếng</option></select></div></div>
+<div class="grid2" style="margin-top:14px"><div><div class="rangehead"><span>Âm lượng giọng gốc</span><b id="origVal">70%</b></div><input id="origVolume" type="range" min="0" max="100" value="70"></div><div><div class="rangehead"><span>Âm lượng giọng dịch</span><b id="dubVal">100%</b></div><input id="dubVolume" type="range" min="0" max="100" value="100"></div></div>
+</section>
+<section class="panel"><h2><span class="step">3.</span>Chất lượng video xuất</h2><div class="grid3"><label class="quality"><input type="radio" name="quality" value="720p"><b>720p</b><div class="small">HD</div></label><label class="quality selected"><input type="radio" name="quality" value="1080p" checked><b>1080p</b><div class="small">Full HD</div></label><label class="quality"><input type="radio" name="quality" value="4K"><b>4K</b><div class="small">UHD*</div></label></div><div class="small" style="margin-top:9px">*4K chỉ khả dụng khi engine xử lý và video nguồn hỗ trợ.</div><button id="processBtn" class="primary" disabled>Bắt đầu tải video lên</button><div id="status" class="status">Chọn video, cài đặt ngôn ngữ/âm lượng/chất lượng rồi bấm “Tải lên & bắt đầu dịch”.</div><div id="downloadArea" class="hidden" style="margin-top:10px"><a id="downloadLink" href="#" download><button type="button" class="primary">⬇ Tải video hoàn chỉnh về thiết bị</button></a></div><div class="notice">Khi engine AI được cấu hình, quy trình sẽ tải lên → dịch → lồng tiếng → xuất video. Chỉ hiện nút tải về khi backend xác nhận đã xuất file hoàn chỉnh.</div></section>
+</div>
+<div>
+<section class="panel"><h2>Xem trước video gốc</h2><div id="preview" class="preview">Video sẽ xuất hiện ở đây sau khi chọn file.</div><div class="small" style="margin-top:8px">Bản xem trước là video gốc trước khi dịch.</div></section>
+<section class="panel"><h2>Album của tôi</h2><div class="small" style="margin-bottom:12px">Các video đã xuất sẽ xuất hiện tại đây khi backend được nối với pipeline xử lý.</div><div id="album" class="albumgrid"><div class="albumitem">Chưa có video đã xuất.</div></div><button id="refreshAlbum" class="secondary" style="margin-top:12px">Làm mới album</button></section>
+<section class="panel"><h2>Luồng xử lý dự kiến</h2><div class="small">1. Tải video → 2. Nhận diện lời thoại → 3. Dịch nội dung → 4. Tạo giọng đọc → 5. Ghép phụ đề/âm thanh → 6. Xuất file để tải về.</div></section>
+</div></div>
+<footer>VietSub AI · Bản khởi đầu · Cần cấu hình engine AI để dịch và xuất video thực tế.</footer>
+</main></div>
+<script>
+const fileInput=document.getElementById('videoFile'), info=document.getElementById('fileInfo'), durationInfo=document.getElementById('durationInfo'), preview=document.getElementById('preview'), btn=document.getElementById('processBtn'), statusBox=document.getElementById('status');
+let chosenFile=null, videoDuration=0, uploadJob=null, objectUrl=null;
+function fmt(s){if(!Number.isFinite(s))return 'không xác định';let h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);return h?`${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`:`${m}:${String(sec).padStart(2,'0')}`}
+fileInput.addEventListener('change',()=>{const f=fileInput.files[0];if(!f)return;chosenFile=f;btn.disabled=true;uploadJob=null;info.classList.remove('hidden');info.textContent=`${f.name} · ${(f.size/1024/1024).toFixed(1)} MB`;if(objectUrl)URL.revokeObjectURL(objectUrl);objectUrl=URL.createObjectURL(f);preview.innerHTML='';const v=document.createElement('video');v.controls=true;v.src=objectUrl;preview.appendChild(v);v.addEventListener('loadedmetadata',()=>{videoDuration=v.duration;durationInfo.textContent=`Thời lượng: ${fmt(videoDuration)} · ${videoDuration>3600?'Vượt giới hạn 1 tiếng. Hãy chọn video ngắn hơn.':'Độ dài hợp lệ.'}`;btn.disabled=videoDuration>3600;btn.textContent='Tải video lên máy chủ';statusBox.textContent=videoDuration>3600?'Video dài hơn 1 tiếng nên chưa thể tải lên.':'Video đã sẵn sàng để tải lên.'});v.addEventListener('error',()=>{durationInfo.textContent='Không đọc được thời lượng video trong trình duyệt.';btn.disabled=false;btn.textContent='Thử tải video lên máy chủ'});});
+for(const [id,out] of [['origVolume','origVal'],['dubVolume','dubVal']])document.getElementById(id).addEventListener('input',e=>document.getElementById(out).textContent=e.target.value+'%');
+document.querySelectorAll('input[name=quality]').forEach(r=>r.addEventListener('change',()=>{document.querySelectorAll('.quality').forEach(x=>x.classList.remove('selected'));r.closest('.quality').classList.add('selected')}));
+btn.addEventListener('click',async()=>{
+ if(!chosenFile)return;
+ btn.disabled=true;btn.textContent='Đang tải video lên…';
+ document.getElementById('downloadArea').classList.add('hidden');
+ statusBox.textContent='Bước 1/2: Đang tải video lên máy chủ…';
+ try{
+  const fd=new FormData();fd.append('video',chosenFile);
+  const res=await fetch('/api/upload',{method:'POST',body:fd});
+  const data=await res.json();if(!res.ok)throw new Error(data.error||'Tải lên thất bại');
+  uploadJob=data;
+  statusBox.textContent=`Tải lên 100% ✓\nVideo: ${data.filename}\nMã tác vụ: ${data.id}\n\nBước 2/2: Đang gửi cài đặt dịch…`;
+  btn.textContent='Đang khởi tạo dịch…';
+  const settings={
+   source_lang:'auto',
+   target_lang:document.getElementById('targetLang').value,
+   voice:document.getElementById('voice').value,
+   subtitle_mode:document.getElementById('subtitleMode').value,
+   original_volume:Number(document.getElementById('origVolume').value),
+   dub_volume:Number(document.getElementById('dubVolume').value),
+   quality:document.querySelector('input[name="quality"]:checked')?.value||'1080p'
+  };
+  const startRes=await fetch(`/api/jobs/${data.id}/start`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(settings)});
+  const startData=await startRes.json();
+  if(!startRes.ok)throw new Error(startData.error||startData.message||'Không khởi tạo được tác vụ');
+  if(startData.status==='completed'&&startData.output_url){
+   statusBox.textContent='Hoàn tất 100% ✓\nVideo đã dịch và lồng tiếng xong.';
+   const link=document.getElementById('downloadLink');link.href=startData.output_url;
+   document.getElementById('downloadArea').classList.remove('hidden');
+   btn.textContent='Đã hoàn tất';document.getElementById('refreshAlbum').click();
+  }else{
+   statusBox.textContent=`Video đã tải lên 100% ✓\nCài đặt đã gửi:\n• Ngôn ngữ đích: ${settings.target_lang}\n• Giọng đọc: ${settings.voice}\n• Âm lượng gốc: ${settings.original_volume}%\n• Âm lượng giọng dịch: ${settings.dub_volume}%\n• Chất lượng: ${settings.quality}\n\nCHƯA THỂ BẮT ĐẦU DỊCH THẬT: backend chưa được kết nối engine AI. Vì vậy chưa có video đầu ra hoặc nút tải về.`;
+   btn.textContent='Đã tải lên — cần cấu hình AI';
+  }
+ }catch(e){
+  statusBox.textContent='Có lỗi: '+e.message+'\nKiểm tra backend, kết nối mạng và giới hạn upload.';
+  btn.disabled=false;btn.textContent='Thử tải lên & bắt đầu dịch lại';
+ }
+});
+document.getElementById('refreshAlbum').addEventListener('click',async()=>{const el=document.getElementById('album');try{const r=await fetch('/api/album');const arr=await r.json();el.innerHTML='';if(!arr.length){el.innerHTML='<div class="albumitem">Chưa có video đã xuất.</div>';return}for(const x of arr){const d=document.createElement('div');d.className='albumitem';const a=document.createElement('a');a.href=x.url;a.textContent='Tải video: '+x.name;a.style.color='#71e6ff';d.appendChild(a);el.appendChild(d)}}catch(e){el.innerHTML='<div class="albumitem">Chưa kết nối được backend.</div>'}});
+document.querySelector('.drop').addEventListener('dragover',e=>{e.preventDefault();e.currentTarget.style.borderColor='#d94cff'});document.querySelector('.drop').addEventListener('dragleave',e=>e.currentTarget.style.borderColor='');document.querySelector('.drop').addEventListener('drop',e=>{e.preventDefault();e.currentTarget.style.borderColor='';if(e.dataTransfer.files.length){fileInput.files=e.dataTransfer.files;fileInput.dispatchEvent(new Event('change'))}});
+</script>
+</body></html>
