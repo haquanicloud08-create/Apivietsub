@@ -1,8 +1,8 @@
 services:
   - type: web
-    name: vietsub-ai
+    name: apivietsub-3
     runtime: python
-    buildCommand: pip install -r requirements.txt
+    buildCommand: apt-get update && apt-get install -y ffmpeg && pip install -r requirements.txt
     startCommand: gunicorn app:app --bind 0.0.0.0:$PORT --timeout 120
     envVars:
       - key: PYTHON_VERSION
