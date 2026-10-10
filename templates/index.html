@@ -48,6 +48,8 @@ footer{text-align:center;color:#6e8eb8;padding:20px;font-size:12px}
 <footer>VietSub AI · Bản khởi đầu · Cần cấu hình engine AI để dịch và xuất video thực tế.</footer>
 </main></div>
 <script>
+const API_BASE='https://apivietsub-3.onrender.com';
+const apiUrl=(path)=>API_BASE+path;
 const fileInput=document.getElementById('videoFile'), info=document.getElementById('fileInfo'), durationInfo=document.getElementById('durationInfo'), preview=document.getElementById('preview'), btn=document.getElementById('processBtn'), statusBox=document.getElementById('status');
 let chosenFile=null, videoDuration=0, uploadJob=null, objectUrl=null;
 function fmt(s){if(!Number.isFinite(s))return 'không xác định';let h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=Math.floor(s%60);return h?`${h}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`:`${m}:${String(sec).padStart(2,'0')}`}
@@ -61,7 +63,7 @@ btn.addEventListener('click',async()=>{
  statusBox.textContent='Bước 1/2: Đang tải video lên máy chủ…';
  try{
   const fd=new FormData();fd.append('video',chosenFile);
-  const res=await fetch('/api/upload',{method:'POST',body:fd});
+  const res=await fetch(apiUrl('/api/upload'),{method:'POST',body:fd});
   const data=await res.json();if(!res.ok)throw new Error(data.error||'Tải lên thất bại');
   uploadJob=data;
   statusBox.textContent=`Tải lên 100% ✓\nVideo: ${data.filename}\nMã tác vụ: ${data.id}\n\nBước 2/2: Đang gửi cài đặt dịch…`;
@@ -75,24 +77,30 @@ btn.addEventListener('click',async()=>{
    dub_volume:Number(document.getElementById('dubVolume').value),
    quality:document.querySelector('input[name="quality"]:checked')?.value||'1080p'
   };
-  const startRes=await fetch(`/api/jobs/${data.id}/start`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(settings)});
+  const startRes=await fetch(apiUrl(`/api/jobs/${data.id}/start`),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(settings)});
   const startData=await startRes.json();
   if(!startRes.ok)throw new Error(startData.error||startData.message||'Không khởi tạo được tác vụ');
-  if(startData.status==='completed'&&startData.output_url){
-   statusBox.textContent='Hoàn tất 100% ✓\nVideo đã dịch và lồng tiếng xong.';
-   const link=document.getElementById('downloadLink');link.href=startData.output_url;
-   document.getElementById('downloadArea').classList.remove('hidden');
-   btn.textContent='Đã hoàn tất';document.getElementById('refreshAlbum').click();
-  }else{
-   statusBox.textContent=`Video đã tải lên 100% ✓\nCài đặt đã gửi:\n• Ngôn ngữ đích: ${settings.target_lang}\n• Giọng đọc: ${settings.voice}\n• Âm lượng gốc: ${settings.original_volume}%\n• Âm lượng giọng dịch: ${settings.dub_volume}%\n• Chất lượng: ${settings.quality}\n\nCHƯA THỂ BẮT ĐẦU DỊCH THẬT: backend chưa được kết nối engine AI. Vì vậy chưa có video đầu ra hoặc nút tải về.`;
-   btn.textContent='Đã tải lên — cần cấu hình AI';
+  btn.textContent='Đang xử lý video…';
+  async function pollJob(){
+   const r=await fetch(apiUrl(`/api/jobs/${data.id}`)); const j=await r.json();
+   statusBox.textContent=`${j.message||'Đang xử lý…'}\nTiến độ: ${j.progress||0}%\nMã tác vụ: ${data.id}`;
+   if(j.status==='completed'&&j.output_url){
+    const link=document.getElementById('downloadLink');link.href=j.output_url.startsWith('http')?j.output_url:apiUrl(j.output_url);
+    document.getElementById('downloadArea').classList.remove('hidden');
+    btn.disabled=false;btn.textContent='Hoàn tất — xử lý video khác';document.getElementById('refreshAlbum').click();
+    if(j.subtitle_url){const a=document.createElement('a');a.href=j.subtitle_url.startsWith('http')?j.subtitle_url:apiUrl(j.subtitle_url);a.textContent='Tải phụ đề SRT';a.style.display='inline-block';a.style.color='#71e6ff';a.style.marginTop='8px';document.getElementById('downloadArea').appendChild(a)}
+    return;
+   }
+   if(j.status==='failed') {btn.disabled=false;btn.textContent='Thử tải lên & dịch lại';statusBox.textContent='Xử lý thất bại: '+(j.error||j.message||'Lỗi không xác định');return;}
+   setTimeout(()=>pollJob().catch(e=>{statusBox.textContent='Mất kết nối khi kiểm tra tiến độ: '+e.message;btn.disabled=false;btn.textContent='Thử lại';}),3000);
   }
+  await pollJob();
  }catch(e){
   statusBox.textContent='Có lỗi: '+e.message+'\nKiểm tra backend, kết nối mạng và giới hạn upload.';
   btn.disabled=false;btn.textContent='Thử tải lên & bắt đầu dịch lại';
  }
 });
-document.getElementById('refreshAlbum').addEventListener('click',async()=>{const el=document.getElementById('album');try{const r=await fetch('/api/album');const arr=await r.json();el.innerHTML='';if(!arr.length){el.innerHTML='<div class="albumitem">Chưa có video đã xuất.</div>';return}for(const x of arr){const d=document.createElement('div');d.className='albumitem';const a=document.createElement('a');a.href=x.url;a.textContent='Tải video: '+x.name;a.style.color='#71e6ff';d.appendChild(a);el.appendChild(d)}}catch(e){el.innerHTML='<div class="albumitem">Chưa kết nối được backend.</div>'}});
+document.getElementById('refreshAlbum').addEventListener('click',async()=>{const el=document.getElementById('album');try{const r=await fetch(apiUrl('/api/album'));const arr=await r.json();el.innerHTML='';if(!arr.length){el.innerHTML='<div class="albumitem">Chưa có video đã xuất.</div>';return}for(const x of arr){const d=document.createElement('div');d.className='albumitem';const a=document.createElement('a');a.href=x.url.startsWith('http')?x.url:apiUrl(x.url);a.textContent='Tải video: '+x.name;a.style.color='#71e6ff';d.appendChild(a);el.appendChild(d)}}catch(e){el.innerHTML='<div class="albumitem">Chưa kết nối được backend.</div>'}});
 document.querySelector('.drop').addEventListener('dragover',e=>{e.preventDefault();e.currentTarget.style.borderColor='#d94cff'});document.querySelector('.drop').addEventListener('dragleave',e=>e.currentTarget.style.borderColor='');document.querySelector('.drop').addEventListener('drop',e=>{e.preventDefault();e.currentTarget.style.borderColor='';if(e.dataTransfer.files.length){fileInput.files=e.dataTransfer.files;fileInput.dispatchEvent(new Event('change'))}});
 </script>
 </body></html>
