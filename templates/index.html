@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VietSub AI</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #080d18;
+      color: #e8f7ff;
+      font-family: Arial, sans-serif;
+    }
+    main {
+      max-width: 600px;
+      margin: 35px auto;
+      padding: 24px;
+      background: #111b2d;
+      border: 1px solid #00d9ff;
+      border-radius: 16px;
+      box-shadow: 0 0 20px #00d9ff30;
+    }
+    h1 { color: #00e5ff; }
+    p { line-height: 1.6; }
+    input, button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 13px;
+      border-radius: 8px;
+    }
+    input {
+      background: #0b1322;
+      color: white;
+      border: 1px solid #34465c;
+    }
+    button {
+      background: #00d9ff;
+      color: #07111c;
+      border: 0;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #status { color: #9eddec; overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>VietSub AI</h1>
+    <p>Công cụ hỗ trợ tải video lên để chuẩn bị xử lý phụ đề và lồng tiếng.</p>
+
+    <form id="uploadForm">
+      <label for="video">Chọn video cần xử lý</label>
+      <input id="video" type="file"
+        accept="video/mp4,video/quicktime,video/x-msvideo,video/x-matroska,video/webm,video/x-m4v"
+        required>
+      <button type="submit">TẢI VIDEO LÊN</button>
+    </form>
+
+    <p id="status">Trạng thái: Sẵn sàng.</p>
+  </main>
+
+  <script>
+    const form = document.getElementById('uploadForm');
+    const status = document.getElementById('status');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const file = document.getElementById('video').files[0];
+      if (!file) {
+        status.textContent = 'Hãy chọn video trước.';
+        return;
+      }
+
+      const data = new FormData();
+      data.append('video', file);
+      status.textContent = 'Đang tải video lên...';
+
+      try {
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: data
+        });
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error || 'Tải video thất bại.');
+        }
+
+        status.textContent =
+          'Tải lên thành công. Mã tác vụ: ' + result.id +
+          '. Engine dịch video AI chưa được tích hợp.';
+      } catch (error) {
+        status.textContent = 'Lỗi: ' + error.message;
+      }
+    });
+  </script>
+</body>
+  </html>
+        
